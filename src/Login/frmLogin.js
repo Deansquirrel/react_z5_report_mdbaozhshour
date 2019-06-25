@@ -1,6 +1,5 @@
 import React from "react";
 import { Form,Icon, Input,Button } from 'antd';
-// import { Form, Icon, Input, Button } from 'antd';
 import "./frmLogin.css"
 
 class LoginFormR extends React.Component {
@@ -8,16 +7,25 @@ class LoginFormR extends React.Component {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                console.log('Received values of form: ', values);
+                // console.log('Received values of form: ', values);
+                this.handleLogin(values["username"],values["password"])
             }
         });
     };
+
+    handleLogin(username,password){
+        this.props.handleLogin(username,password)
+    }
+
+    componentDidMount() {
+        document.getElementById("normal_login_username").focus();
+    }
 
     render() {
         const { getFieldDecorator } = this.props.form;
         return (
             <div className={"login-form"}>
-                <h1>Login in</h1>
+                <h1>{this.props.title?this.props.title:"Login in"}</h1>
                 <Form style={{marginTop:'50px'}} onSubmit={this.handleSubmit}>
                      <Form.Item>
                          {getFieldDecorator('username', {
@@ -41,10 +49,9 @@ class LoginFormR extends React.Component {
                      )}
                     </Form.Item>
                     <Form.Item>
-                        <Button type="primary" style={{width:'100%',marginTop:'30px'}} size={"large"} htmlType="submit" className="login-form-button">
+                        <Button disabled={this.props.disabled} type="primary" style={{width:'100%',marginTop:'30px'}} size={"large"} htmlType="submit" className="login-form-button">
                             Log in
                         </Button>
-
                     </Form.Item>
 
                 </Form>
