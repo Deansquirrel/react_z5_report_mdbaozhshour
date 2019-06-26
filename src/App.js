@@ -1,11 +1,11 @@
 import React from 'react';
 import {LocaleProvider} from 'antd';
 import {message} from 'antd';
-import { Layout, Menu, Icon } from 'antd';
+import { Layout, Menu, Icon, Button } from 'antd';
 import zhCN from 'antd/lib/locale-provider/zh_CN';
 
 import { LoginForm } from "./Login/frmLogin"
-// import { CReport } from "./Report/frmMdBaoZhShouR"
+import { FrmMdBaoZhShouR } from "./Report/frmMdBaoZhShouR"
 
 import "antd/dist/antd.css";
 import "./App.css"
@@ -32,6 +32,7 @@ class Container extends React.Component {
             isLoggingIn:false,
             loginTime:new Date(),
             token:"",
+            mdName:"",
         }
     }
 
@@ -94,6 +95,7 @@ class Container extends React.Component {
                 if(data["errcode"]===0){
                     this.setState({
                         token:data["token"],
+                        mdName:data["mdname"],
                         loginTime:new Date(),
                         showPage:2,
                     });
@@ -111,24 +113,35 @@ class Container extends React.Component {
         })
     }
 
+    handleLogout(){
+        this.setState({
+            token:"",
+            mdName:"",
+            loginTime:new Date(),
+            showPage:1,
+        });
+    }
+
     render(){
         switch (this.state.showPage) {
-            case 0:
-                return (<div>&nbsp;</div>);
             case 1:
                 return (
                     <div>
-                        <LoginForm disabled={this.state.isLoggingIn} title={"登   录"} handleLogin={(username,password)=> this.handleLogin(username,password)} />
+                        <LoginForm
+                            title={"登   录"}
+                            disabled={this.state.isLoggingIn}
+                            handleLogin={(username,password)=> this.handleLogin(username,password)}
+                        />
                     </div>
                 );
             case 2:
                 return (
                     <div>
-                        <PageLoader />
+                        <PageLoader mdName={this.state.mdName} handleLogout={()=>this.handleLogout()} />
                     </div>
                 );
             default:
-                return (<div>&nbsp;</div>);
+                return (<div>show page error</div>);
         }
     }
 }
@@ -141,8 +154,8 @@ class PageLoader extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            showPage:0,//0-init(null),1-login,-2-report
             collapsed: false,
+            currPage:""
         }
     }
 
@@ -152,25 +165,66 @@ class PageLoader extends React.Component {
         })
     };
 
+    componentDidMount() {
+        this.setState({
+            currPage:"mdBaoZhShouR",
+        })
+    }
+
+    handleMenuClick(key) {
+        this.setState({
+            currPage:key,
+        })
+    }
+
+    getDefaultOpenKey(menuData,currPage){
+        let list = [];
+        let listMap = new Map();
+        menuData.map((item)=>{
+            if(item.child.length > 0){
+                item.child.map((subItem)=>{
+                    listMap[subItem.key]=item.key;
+                    return subItem.key
+                });
+            } else {
+                listMap[item.key]=item.key;
+            }
+            return item.key
+        });
+        list.push(listMap[currPage]);
+        return list
+    }
+
     render() {
 
         const testData = [
             {key:"mdReport",icon:"table",title:"门店报表",child:[
                     {key:"mdBaoZhShouR",title:"门店报账收入日报"},
+                    {key:"mdBaoZhShouR1",title:"门店报账收入日报1"},
                     {key:"mdBaoZhShouR2",title:"门店报账收入日报2"}
                 ]},
+            {key:"mdReport2",icon:"table",title:"门店报表2",child:[
+                    {key:"mdBaoZhShouR3",title:"门店报账收入日报3"},
+                    {key:"mdBaoZhShouR4",title:"门店报账收入日报4"},
+                    {key:"mdBaoZhShouR5",title:"门店报账收入日报5"}
+                ]},
+            {key:"mdReport3",icon:"table",title:"门店报表3",child:[]}
         ];
 
-        const MenuList = ({mData,defaultKey,defaultOpenKey}) => {
+
+        let MenuList = ({mData}) => {
             return (
-                <Menu theme="dark"  mode="inline" defaultSelectedKeys={[defaultKey]} defaultOpenKeys={[defaultOpenKey]}>
+                <Menu theme="dark"  mode="inline"
+                      defaultSelectedKeys={[this.state.currPage]}
+                      defaultOpenKeys={this.getDefaultOpenKey(testData,this.state.currPage)}
+                >
                     {mData.map((item)=>{
                         if (item.child.length > 0){
                             return (
                                 <SubMenu key={item.key} title ={<span><Icon type={item.icon} /><span>{item.title}</span></span>}>
                                     {item.child.map((subItem)=>{
                                         return (
-                                            <Menu.Item key={subItem.key}>
+                                            <Menu.Item key={subItem.key} onClick={()=>this.handleMenuClick(subItem.key)}>
                                                 <span>{subItem.title}</span>
                                             </Menu.Item>
                                         )
@@ -185,7 +239,6 @@ class PageLoader extends React.Component {
                                 </Menu.Item>
                             )
                         }
-
                     })}
                 </Menu>
             )
@@ -204,6 +257,9 @@ class PageLoader extends React.Component {
                             type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
                             onClick={this.toggle}
                         />
+                        <div className={"rightHeader"}>
+                            <Button type={"link"} onClick={()=>this.props.handleLogout()}>Logout</Button>
+                        </div>
                     </Header>
                     <Content
                         style={{
@@ -212,13 +268,29 @@ class PageLoader extends React.Component {
                             background: '#fff',
                         }}
                     >
-                        Content<br />
-                        Content<br />
-                        Content<br />
-                        Content<br />
+                        <PageContent currPage={this.state.currPage} mdName={this.props.mdName} />
                     </Content>
                 </Layout>
             </Layout>
         );
+    }
+}
+
+class PageContent extends React.Component {
+    render() {
+        switch (this.props.currPage){
+            case "mdBaoZhShouR":
+                return (
+                    <FrmMdBaoZhShouR mdName={this.props.mdName} />
+                );
+            case "222":
+                return (
+                    <div>{this.props.currPage}</div>
+                );
+            default:
+                return (
+                    <div>{this.props.currPage}</div>
+                );
+        }
     }
 }

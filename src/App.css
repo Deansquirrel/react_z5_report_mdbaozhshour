@@ -21,3 +21,9 @@
     background: rgba(255, 255, 255, 0.2);
     margin: 16px;
 }
+
+.rightHeader {
+    float: right;
+    height: 100%;
+    margin-right: 48px;
+}
