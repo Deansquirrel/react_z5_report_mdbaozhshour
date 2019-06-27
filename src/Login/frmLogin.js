@@ -49,8 +49,15 @@ class LoginFormR extends React.Component {
                      )}
                     </Form.Item>
                     <Form.Item>
-                        <Button disabled={this.props.disabled} type="primary" style={{width:'100%',marginTop:'30px'}} size={"large"} htmlType="submit" className="login-form-button">
-                            Log in
+                        <Button
+                            disabled={this.props.disabled}
+                            loading={this.props.disabled}
+                            type="primary"
+                            style={{width:'100%',marginTop:'30px'}}
+                            size={"large"}
+                            htmlType="submit"
+                            className="login-form-button">
+                            {!this.props.disabled?"Log in":"Logging in"}
                         </Button>
                     </Form.Item>
 

@@ -3,13 +3,18 @@ import {LocaleProvider} from 'antd';
 import {message} from 'antd';
 import { Layout, Menu, Icon, Button } from 'antd';
 import zhCN from 'antd/lib/locale-provider/zh_CN';
+import moment from "moment";
+import 'moment/locale/zh-cn';
 
 import { LoginForm } from "./Login/frmLogin"
 import { FrmMdBaoZhShouR } from "./Report/frmMdBaoZhShouR"
 
+
 import "antd/dist/antd.css";
 import "./App.css"
 import $ from 'jquery'
+
+moment.locale('zh-cn');
 
 export default App;
 
@@ -107,8 +112,7 @@ class Container extends React.Component {
                 }
             }.bind(this),
             error:function(xhr,status,e) {
-                console.log(e);
-                message.error("[" + xhr.status + "]" + status + ":"+ e.toString(),3)
+                message.error("[" + xhr.status + "]" + status + ":"+ e,3)
             }
         })
     }
@@ -137,7 +141,7 @@ class Container extends React.Component {
             case 2:
                 return (
                     <div>
-                        <PageLoader mdName={this.state.mdName} handleLogout={()=>this.handleLogout()} />
+                        <PageLoader svrAddress={this.state.svrAddress} token={this.state.token} mdName={this.state.mdName} handleLogout={()=>this.handleLogout()} />
                     </div>
                 );
             default:
@@ -211,6 +215,12 @@ class PageLoader extends React.Component {
             {key:"mdReport3",icon:"table",title:"门店报表3",child:[]}
         ];
 
+        // const testData = [
+        //     {key:"mdReport",icon:"table",title:"门店报表",child:[
+        //             {key:"mdBaoZhShouR",title:"门店报账收入日报"}
+        //             ]},
+        // ];
+
 
         let MenuList = ({mData}) => {
             return (
@@ -268,7 +278,7 @@ class PageLoader extends React.Component {
                             background: '#fff',
                         }}
                     >
-                        <PageContent currPage={this.state.currPage} mdName={this.props.mdName} />
+                        <PageContent svrAddress={this.props.svrAddress} token={this.props.token} currPage={this.state.currPage} mdName={this.props.mdName} />
                     </Content>
                 </Layout>
             </Layout>
@@ -281,7 +291,7 @@ class PageContent extends React.Component {
         switch (this.props.currPage){
             case "mdBaoZhShouR":
                 return (
-                    <FrmMdBaoZhShouR mdName={this.props.mdName} />
+                    <FrmMdBaoZhShouR svrAddress={this.props.svrAddress} token={this.props.token}  mdName={this.props.mdName} />
                 );
             case "222":
                 return (
