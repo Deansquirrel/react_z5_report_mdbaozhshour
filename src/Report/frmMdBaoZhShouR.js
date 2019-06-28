@@ -10,12 +10,16 @@ class FrmMdBaoZhShouR extends React.Component {
         super(props);
         this.state = {
             isSearching:false,
+            tableData:{},
         }
     }
 
     handleFrmSubmit(sDate,eDate){
-        console.log(sDate);
-        console.log(eDate);
+
+        if (sDate > eDate) {
+            message.warn("开始日期不能大于截止日期",3);
+            return
+        }
 
         let d = {};
         d.token = this.props.token;
@@ -42,31 +46,29 @@ class FrmMdBaoZhShouR extends React.Component {
                 });
             }.bind(this),
             success: function (data) {
-                console.log(data)
+                console.log(data);
+                this.setState({
+                    tableData:data,
+                })
             }.bind(this),
             error:function(xhr,status,e) {
                 message.error("[" + xhr.status + "]" + status + ":"+ e,3)
             }
         })
-
-        // Token     string `json:"token"`
-        // StartDate string `json:"startdate"`
-        // EndDate   string `json:"enddate"`
     }
 
     render() {
         return (
             <div>
                 <h1 style={{fontSize:'24px'}}>门店报账收入日报({this.props.mdName})</h1>
-                <SearchFormWrapper handleSubmit={(sDate,eDate)=>this.handleFrmSubmit(sDate,eDate)} />
-                <ShowTable data={{}} />
+                <SearchFormWrapper isSearching={this.state.isSearching} handleSubmit={(sDate,eDate)=>this.handleFrmSubmit(sDate,eDate)} />
+                <ShowTable tableData={this.state.tableData} />
             </div>
         )
     }
 }
 
 export { FrmMdBaoZhShouR }
-
 
 const FormItem = Form.Item;
 
@@ -78,11 +80,11 @@ class SearchForm extends React.Component {
             if (!err) {
                 let sDate = values["startDate"];
                 let eDate = values["endDate"];
-                if (sDate > eDate){
-                    let t = sDate;
-                    sDate = eDate;
-                    eDate = t;
-                }
+                // if (sDate > eDate){
+                //     let t = sDate;
+                //     sDate = eDate;
+                //     eDate = t;
+                // }
                 this.props.handleSubmit(sDate.format('YYYY-MM-DD'),eDate.format('YYYY-MM-DD'))
             }
         });
@@ -105,7 +107,8 @@ class SearchForm extends React.Component {
                                 format={"YYYY-MM-DD"}
                                 placeholder={"开始日期"}
                                 disabledDate={(curr)=>{
-                                    return curr > moment().endOf('day')
+                                    return curr < moment().add(-60,'days').startOf('day')
+                                        || curr > moment().endOf('day')
                                 }}
                             />,
                         )}
@@ -121,18 +124,19 @@ class SearchForm extends React.Component {
                                 format={"YYYY-MM-DD"}
                                 placeholder={"截止日期"}
                                 disabledDate={(curr)=>{
-                                    return curr > moment().endOf('day')
+                                    return curr < moment().add(-60,'days').startOf('day')
+                                        || curr > moment().endOf('day')
                                 }}
                             />,
                         )}
                     </FormItem>
                     <Button
+                        loading={this.props.isSearching}
                         style={{float:'left',marginLeft:'36px',marginTop:'3px'}}
                         htmlType={"submit"}
-                        disabled={this.props.disable}
                         type={"primary"}
                     >
-                        确定
+                        {!this.props.isSearching?"确定":"Searching"}
                     </Button>
                 </Form>
             </div>
@@ -144,97 +148,224 @@ const SearchFormWrapper = Form.create({ name: 'search_form' })(SearchForm);
 
 class ShowTable extends React.Component {
 
-    render() {
-        const dataSource = [
-            // {
-            //     key: '1',
-            //     name: '胡彦斌',
-            //     age: 32,
-            //     address: '西湖区湖底公园1号',
-            // },
-            // {
-            //     key: '2',
-            //     name: '胡彦祖',
-            //     age: 42,
-            //     address: '西湖区湖底公园1号',
-            // },
-        ];
-        const columns = [
-            {
-                title: '日期',
-                dataIndex: 'date',
-                key: 'date',
-            },
-            {
-                title: '合计',
-                dataIndex: 'age',
-                key: 'age',
-            },
-            {
-                title: '现金',
-                dataIndex: 'xj',
-                key: 'xj',
-            },
-            {
-                title: '赊账',
-                dataIndex: 'sz',
-                key: 'sz',
-            },
-            {
-                title: '转账',
-                children:[
-                    {
-                        title: '合计',
-                        dataIndex: 'szTotal',
-                        key: 'szTotal',
-                    },
-                    {
-                        title: '转账1',
-                        dataIndex: 'sz1',
-                        key: 'sz1',
-                    }
-                ]
-            },
-            {
-                title: '卡种',
-                children:[
-                    {
-                        title: '合计',
-                        dataIndex: 'kzTotal',
-                        key: 'kzTotal',
-                    },
-                    {
-                        title: '卡种1',
-                        dataIndex: 'kz1',
-                        key: 'kz1',
-                    }
-                ]
-            },
-            {
-                title: '券种',
-                children:[
-                    {
-                        title: '合计',
-                        dataIndex: 'qzTotal',
-                        key: 'qzTotal',
-                    },
-                    {
-                        title: '券种1',
-                        dataIndex: 'qz1',
-                        key: 'qz1',
-                    }
-                ]
-            },
-            {
-                title: '交易次数',
-                dataIndex: 'totalCheck',
-                key: 'totalCheck',
-            },
+    getColumns(tableData){
+        if ($.isEmptyObject(tableData)){
+            return [
+                {
+                    title: '日期',
+                    dataIndex: 'yyr',
+                    key: 'yyr',
+                },
+                {
+                    title: '合计',
+                    dataIndex: 'total',
+                    key: 'total',
+                },
+                {
+                    title: '现金',
+                    dataIndex: 'cash',
+                    key: 'cash',
+                },
+                {
+                    title: '赊账',
+                    dataIndex: 'credit',
+                    key: 'credit',
+                },
+                {
+                    title: '转账',
+                    children:[
+                        {
+                            title: '合计',
+                            dataIndex: 'transfer',
+                            key: 'transfer',
+                        },
+                        {
+                            title: '已禁用',
+                            dataIndex: 'transferforbidden',
+                            key: 'transferforbidden',
+                        }
+                    ]
+                },
+                {
+                    title: '卡种',
+                    children:[
+                        {
+                            title: '合计',
+                            dataIndex: 'card',
+                            key: 'card',
+                        },
+                        {
+                            title: '已禁用',
+                            dataIndex: 'cardforbidden',
+                            key: 'cardforbidden',
+                        }
+                    ]
+                },
+                {
+                    title: '券种',
+                    children:[
+                        {
+                            title: '合计',
+                            dataIndex: 'ticket',
+                            key: 'ticket',
+                        },
+                        {
+                            title: '已禁用',
+                            dataIndex: 'ticketforbidden',
+                            key: 'ticketforbidden',
+                        }
+                    ]
+                },
+                {
+                    title: '交易次数',
+                    dataIndex: 'totalcheck',
+                    key: 'totalcheck',
+                },
+            ];
+        } else {
+            return [
+                {
+                    title: '日期',
+                    dataIndex: 'yyr',
+                    key: 'yyr',
+                    fixed: 'left',
+                },
+                {
+                    title: '合计',
+                    dataIndex: 'total',
+                    key: 'total',
+                    fixed: 'left',
+                },
+                {
+                    title: '现金',
+                    dataIndex: 'cash',
+                    key: 'cash',
+                    fixed: 'left',
+                },
+                {
+                    title: '赊账',
+                    dataIndex: 'credit',
+                    key: 'credit',
+                    fixed: 'left',
+                },
+                {
+                    title: '转账',
+                    children:[
+                        {
+                            title: '合计',
+                            dataIndex: 'transfer',
+                            key: 'transfer',
+                        },
+                        ...this.props.tableData.zzlist.map((item)=>{
+                            return (
+                                {
+                                    title:item,
+                                    dataIndex:item,
+                                    key:item,
+                                }
+                            )
+                        }),
+                        {
+                            title: '已禁用',
+                            dataIndex: 'transferforbidden',
+                            key: 'transferforbidden',
+                        },
+                    ]
+                },
+                {
+                    title: '卡种',
+                    children:[
+                        {
+                            title: '合计',
+                            dataIndex: 'card',
+                            key: 'card',
+                        },
+                        ...this.props.tableData.kzlist.map((item)=>{
+                            return (
+                                {
+                                    title:item,
+                                    dataIndex:item,
+                                    key:item,
+                                }
+                            )
+                        }),
+                        {
+                            title: '已禁用',
+                            dataIndex: 'cardforbidden',
+                            key: 'cardforbidden',
+                        }
+                    ]
+                },
+                {
+                    title: '券种',
+                    children:[
+                        {
+                            title: '合计',
+                            dataIndex: 'ticket',
+                            key: 'ticket',
+                        },
+                        ...this.props.tableData.qzlist.map((item)=>{
+                            return (
+                                {
+                                    title:item,
+                                    dataIndex:item,
+                                    key:item,
+                                }
+                            )
+                        }),
+                        {
+                            title: '已禁用',
+                            dataIndex: 'ticketforbidden',
+                            key: 'ticketforbidden',
+                        }
+                    ]
+                },
+                {
+                    title: '交易次数',
+                    dataIndex: 'totalcheck',
+                    key: 'totalcheck',
+                },
 
-        ];
+            ];
+        }
+    }
+
+    getDataSource(tableData){
+        if ($.isEmptyObject(tableData)){
+            return [];
+        } else {
+            return tableData.data.map((item)=>{
+                return {
+                    key:item.yyr,
+                    yyr:item.yyr,
+                    total:item.total,
+                    cash:item.cash,
+                    credit:item.credit,
+                    transfer:item.transfer,
+                    transferforbidden:item.transferforbidden,
+                    card:item.card,
+                    cardforbidden:item.cardforbidden,
+                    ticket:item.ticket,
+                    ticketforbidden:item.ticketforbidden,
+                    totalcheck:item.totalcheck,
+                    ...item.transferdetail,
+                    ...item.carddetail,
+                    ...item.ticketdetail,
+                }
+            });
+        }
+    }
+
+    render() {
         return (
             <div>
-                <Table bordered dataSourct={dataSource} columns = {columns} />
+                <Table
+                    bordered
+                    size="middle"
+                    dataSource={this.getDataSource(this.props.tableData)}
+                    columns = {this.getColumns(this.props.tableData)}
+                    scroll={{x:'max-content'}}
+                />
             </div>
         )
     }

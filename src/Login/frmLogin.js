@@ -50,7 +50,6 @@ class LoginFormR extends React.Component {
                     </Form.Item>
                     <Form.Item>
                         <Button
-                            disabled={this.props.disabled}
                             loading={this.props.disabled}
                             type="primary"
                             style={{width:'100%',marginTop:'30px'}}
