@@ -58,10 +58,19 @@ class FrmMdBaoZhShouR extends React.Component {
                 });
             }.bind(this),
             success: function (data) {
-                console.log(data);
-                this.setState({
-                    tableData:data,
-                })
+                console.log(data)
+                if(data["errcode"]===200){
+                    this.setState({
+                        tableData:data,
+                    })
+                } else if(data["errcode"]===10000){
+                    message.info("登录已过期，请重新登录");
+                    setTimeout(()=>{
+                        this.props.handleLogout();
+                    },100)
+                } else {
+                    console.log(data)
+                }
             }.bind(this),
             error:function(xhr,status,e) {
                 message.error("[" + xhr.status + "]" + status + ":"+ e,3)
@@ -190,17 +199,14 @@ class ShowTable extends React.Component {
     render() {
 
         const zzColumns = (tableData,showZzDetail) => {
+
             let defaultColumns = {
                 title: '转账',
-                children: [
-                    {
-                        title: '合计',
-                        dataIndex: 'transfer',
-                        key: 'transfer',
-                        align: 'right',
-                    },
-                ]
+                dataIndex: 'transfer',
+                key: 'transfer',
+                align: 'right',
             };
+
             if ($.isEmptyObject(tableData)) {
                 return defaultColumns;
             }
@@ -243,14 +249,9 @@ class ShowTable extends React.Component {
             let defaultColumns =
                     {
                         title: '卡种',
-                        children:[
-                            {
-                                title: '合计',
-                                dataIndex: 'card',
-                                key: 'card',
-                                align:'right',
-                            },
-                        ]
+                        dataIndex: 'card',
+                        key: 'card',
+                        align:'right',
                     };
             if ($.isEmptyObject(tableData)) {
                 return defaultColumns;
@@ -294,15 +295,10 @@ class ShowTable extends React.Component {
             let defaultColumns =
                 {
                     title: '券种',
-                    children:[
-                        {
-                            title: '合计',
-                            dataIndex: 'ticket',
-                            key: 'ticket',
-                            align:'right',
-                        },
-                    ]
-                }
+                    dataIndex: 'ticket',
+                    key: 'ticket',
+                    align:'right',
+                };
             if ($.isEmptyObject(tableData)) {
                 return defaultColumns;
             }
@@ -415,36 +411,21 @@ class ShowTable extends React.Component {
             },
             {
                 title: '转账',
-                children:[
-                    {
-                        title: '合计',
-                        dataIndex: 'transfer',
-                        key: 'transfer',
-                        align:'center',
-                    },
-                ]
+                dataIndex: 'transfer',
+                key: 'transfer',
+                align:'center',
             },
             {
                 title: '卡种',
-                children:[
-                    {
-                        title: '合计',
-                        dataIndex: 'card',
-                        key: 'card',
-                        align:'center',
-                    },
-                ]
+                dataIndex: 'card',
+                key: 'card',
+                align:'center',
             },
             {
                 title: '券种',
-                children:[
-                    {
-                        title: '合计',
-                        dataIndex: 'ticket',
-                        key: 'ticket',
-                        align:'center',
-                    },
-                ]
+                dataIndex: 'ticket',
+                key: 'ticket',
+                align:'center',
             },
             {
                 title: '交易次数',
@@ -452,7 +433,6 @@ class ShowTable extends React.Component {
                 key: 'totalcheck',
                 align:'center',
             },
-
         ];
 
         const dataSource = (tableData) => {

@@ -15,6 +15,9 @@ import "./App.css"
 import $ from 'jquery'
 
 moment.locale('zh-cn');
+message.config({
+    top:60,
+});
 
 export default App;
 
@@ -44,7 +47,7 @@ class Container extends React.Component {
     componentDidMount() {
         this.refreshConfig();
         this.setState({
-            showPage:2,
+            showPage:1,
         })
     }
 
@@ -97,7 +100,7 @@ class Container extends React.Component {
                 });
             }.bind(this),
             success: function (data) {
-                if(data["errcode"]===0){
+                if(data["errcode"]===200){
                     this.setState({
                         token:data["token"],
                         mdName:data["mdname"],
@@ -141,7 +144,12 @@ class Container extends React.Component {
             case 2:
                 return (
                     <div>
-                        <PageLoader svrAddress={this.state.svrAddress} token={this.state.token} mdName={this.state.mdName} handleLogout={()=>this.handleLogout()} />
+                        <PageLoader
+                            svrAddress={this.state.svrAddress}
+                            token={this.state.token}
+                            mdName={this.state.mdName}
+                            handleLogout={()=>this.handleLogout()}
+                        />
                     </div>
                 );
             default:
@@ -175,7 +183,16 @@ class PageLoader extends React.Component {
         })
     }
 
-    handleMenuClick(key) {
+    componentWillUnmount() {
+        // 卸载异步操作设置状态
+        clearTimeout(this.timeouter);
+        this.setState = (state, callback) => {
+            return
+        };
+    }
+
+
+     handleMenuClick(key) {
         this.setState({
             currPage:key,
         })
@@ -201,25 +218,25 @@ class PageLoader extends React.Component {
 
     render() {
 
-        const testData = [
-            {key:"mdReport",icon:"table",title:"门店报表",child:[
-                    {key:"mdBaoZhShouR",title:"门店报账收入日报"},
-                    {key:"mdBaoZhShouR1",title:"门店报账收入日报1"},
-                    {key:"mdBaoZhShouR2",title:"门店报账收入日报2"}
-                ]},
-            {key:"mdReport2",icon:"table",title:"门店报表2",child:[
-                    {key:"mdBaoZhShouR3",title:"门店报账收入日报3"},
-                    {key:"mdBaoZhShouR4",title:"门店报账收入日报4"},
-                    {key:"mdBaoZhShouR5",title:"门店报账收入日报5"}
-                ]},
-            {key:"mdReport3",icon:"table",title:"门店报表3",child:[]}
-        ];
-
         // const testData = [
         //     {key:"mdReport",icon:"table",title:"门店报表",child:[
-        //             {key:"mdBaoZhShouR",title:"门店报账收入日报"}
-        //             ]},
+        //             {key:"mdBaoZhShouR",title:"门店报账收入日报"},
+        //             {key:"mdBaoZhShouR1",title:"门店报账收入日报1"},
+        //             {key:"mdBaoZhShouR2",title:"门店报账收入日报2"}
+        //         ]},
+        //     {key:"mdReport2",icon:"table",title:"门店报表2",child:[
+        //             {key:"mdBaoZhShouR3",title:"门店报账收入日报3"},
+        //             {key:"mdBaoZhShouR4",title:"门店报账收入日报4"},
+        //             {key:"mdBaoZhShouR5",title:"门店报账收入日报5"}
+        //         ]},
+        //     {key:"mdReport3",icon:"table",title:"门店报表3",child:[]}
         // ];
+
+        const testData = [
+            {key:"mdReport",icon:"table",title:"门店报表",child:[
+                    {key:"mdBaoZhShouR",title:"门店报账收入日报"}
+                    ]},
+        ];
 
 
         let MenuList = ({mData}) => {
@@ -268,7 +285,9 @@ class PageLoader extends React.Component {
                             onClick={this.toggle}
                         />
                         <div className={"rightHeader"}>
-                            <Button type={"link"} onClick={()=>this.props.handleLogout()}>Logout</Button>
+                            <Button type={"link"} onClick={()=>this.props.handleLogout()}>
+                                <Icon type="logout" />Logout
+                            </Button>
                         </div>
                     </Header>
                     <Content
@@ -278,7 +297,13 @@ class PageLoader extends React.Component {
                             background: '#fff',
                         }}
                     >
-                        <PageContent svrAddress={this.props.svrAddress} token={this.props.token} currPage={this.state.currPage} mdName={this.props.mdName} />
+                        <PageContent
+                            svrAddress={this.props.svrAddress}
+                            token={this.props.token}
+                            currPage={this.state.currPage}
+                            mdName={this.props.mdName}
+                            handleLogout={()=>this.props.handleLogout()}
+                        />
                     </Content>
                 </Layout>
             </Layout>
@@ -291,7 +316,12 @@ class PageContent extends React.Component {
         switch (this.props.currPage){
             case "mdBaoZhShouR":
                 return (
-                    <FrmMdBaoZhShouR svrAddress={this.props.svrAddress} token={this.props.token}  mdName={this.props.mdName} />
+                    <FrmMdBaoZhShouR
+                        svrAddress={this.props.svrAddress}
+                        token={this.props.token}
+                        mdName={this.props.mdName}
+                        handleLogout={()=>this.props.handleLogout()}
+                    />
                 );
             case "222":
                 return (
