@@ -1,5 +1,6 @@
 import React from "react";
-import {Form, DatePicker, Button, Table, message} from 'antd';
+import {Form, DatePicker, Button, Table, Checkbox, message} from 'antd';
+import "antd/dist/antd.css";
 import "./frmMdBaoZhShouR.css";
 import moment from "moment";
 
@@ -11,13 +12,24 @@ class FrmMdBaoZhShouR extends React.Component {
         this.state = {
             isSearching:false,
             tableData:{},
+            showZzDetail:true,
+            showKzDetail:true,
+            showQzDetail:true,
         }
     }
 
     handleFrmSubmit(sDate,eDate){
 
-        if (sDate > eDate) {
+        let sMDate = moment(sDate,'YYYY-MM-DD');
+        let eMDate = moment(eDate,'YYYY-MM-DD');
+
+        if (sMDate > eMDate) {
             message.warn("开始日期不能大于截止日期",3);
+            return
+        }
+
+        if (sMDate.add(60,'days') < eMDate ) {
+            message.warn("查询间隔不能大于60天",3);
             return
         }
 
@@ -57,12 +69,44 @@ class FrmMdBaoZhShouR extends React.Component {
         })
     }
 
+    handleCheckBoxZzDetail = e => {
+        this.setState({
+            showZzDetail:e.target.checked,
+        })
+    };
+
+    handleCheckBoxKzDetail = e => {
+        this.setState({
+            showKzDetail:e.target.checked,
+        })
+    };
+
+    handleCheckBoxQzDetail = e => {
+        this.setState({
+            showQzDetail:e.target.checked,
+        })
+    };
+
     render() {
         return (
             <div>
                 <h1 style={{fontSize:'24px'}}>门店报账收入日报({this.props.mdName})</h1>
-                <SearchFormWrapper isSearching={this.state.isSearching} handleSubmit={(sDate,eDate)=>this.handleFrmSubmit(sDate,eDate)} />
-                <ShowTable tableData={this.state.tableData} />
+                <SearchFormWrapper
+                    isSearching={this.state.isSearching}
+                    handleSubmit={(sDate,eDate)=>this.handleFrmSubmit(sDate,eDate)}
+                />
+                <div className={"TableShowDetail"}>
+                    <Checkbox onChange={this.handleCheckBoxZzDetail} defaultChecked={true}>显示转帐明细</Checkbox>
+                    <Checkbox onChange={this.handleCheckBoxKzDetail} defaultChecked={true}>显示卡种明细</Checkbox>
+                    <Checkbox onChange={this.handleCheckBoxQzDetail} defaultChecked={true}>显示券种明细</Checkbox>
+                </div>
+                <ShowTable
+                    showZzDetail={this.state.showZzDetail}
+                    showKzDetail={this.state.showKzDetail}
+                    showQzDetail={this.state.showQzDetail}
+                    isSearching={this.state.isSearching}
+                    tableData={this.state.tableData}
+                />
             </div>
         )
     }
@@ -78,14 +122,7 @@ class SearchForm extends React.Component {
         e.preventDefault();
         this.props.form.validateFields((err,values)=> {
             if (!err) {
-                let sDate = values["startDate"];
-                let eDate = values["endDate"];
-                // if (sDate > eDate){
-                //     let t = sDate;
-                //     sDate = eDate;
-                //     eDate = t;
-                // }
-                this.props.handleSubmit(sDate.format('YYYY-MM-DD'),eDate.format('YYYY-MM-DD'))
+                this.props.handleSubmit(values["startDate"].format('YYYY-MM-DD'),values["endDate"].format('YYYY-MM-DD'))
             }
         });
     };
@@ -107,8 +144,9 @@ class SearchForm extends React.Component {
                                 format={"YYYY-MM-DD"}
                                 placeholder={"开始日期"}
                                 disabledDate={(curr)=>{
-                                    return curr < moment().add(-60,'days').startOf('day')
-                                        || curr > moment().endOf('day')
+                                    // return curr < moment().add(-60,'days').startOf('day')
+                                    //     || curr > moment().endOf('day')
+                                    return curr > moment().endOf('day')
                                 }}
                             />,
                         )}
@@ -124,8 +162,9 @@ class SearchForm extends React.Component {
                                 format={"YYYY-MM-DD"}
                                 placeholder={"截止日期"}
                                 disabledDate={(curr)=>{
-                                    return curr < moment().add(-60,'days').startOf('day')
-                                        || curr > moment().endOf('day')
+                                    // return curr < moment().add(-60,'days').startOf('day')
+                                    //     || curr > moment().endOf('day')
+                                    return curr > moment().endOf('day')
                                 }}
                             />,
                         )}
@@ -148,120 +187,45 @@ const SearchFormWrapper = Form.create({ name: 'search_form' })(SearchForm);
 
 class ShowTable extends React.Component {
 
-    getColumns(tableData){
-        if ($.isEmptyObject(tableData)){
-            return [
-                {
-                    title: '日期',
-                    dataIndex: 'yyr',
-                    key: 'yyr',
-                },
-                {
-                    title: '合计',
-                    dataIndex: 'total',
-                    key: 'total',
-                },
-                {
-                    title: '现金',
-                    dataIndex: 'cash',
-                    key: 'cash',
-                },
-                {
-                    title: '赊账',
-                    dataIndex: 'credit',
-                    key: 'credit',
-                },
-                {
-                    title: '转账',
+    render() {
+
+        const zzColumns = (tableData,showZzDetail) => {
+            let defaultColumns = {
+                title: '转账',
+                children: [
+                    {
+                        title: '合计',
+                        dataIndex: 'transfer',
+                        key: 'transfer',
+                        align: 'right',
+                    },
+                ]
+            };
+            if ($.isEmptyObject(tableData)) {
+                return defaultColumns;
+            }
+            if ($.isEmptyObject(tableData.zzlist)) {
+                return defaultColumns;
+            }
+            if (!showZzDetail) {
+                return defaultColumns;
+            }
+            return {
+                title: '转账',
                     children:[
                         {
                             title: '合计',
                             dataIndex: 'transfer',
                             key: 'transfer',
+                            align:'right',
                         },
-                        {
-                            title: '已禁用',
-                            dataIndex: 'transferforbidden',
-                            key: 'transferforbidden',
-                        }
-                    ]
-                },
-                {
-                    title: '卡种',
-                    children:[
-                        {
-                            title: '合计',
-                            dataIndex: 'card',
-                            key: 'card',
-                        },
-                        {
-                            title: '已禁用',
-                            dataIndex: 'cardforbidden',
-                            key: 'cardforbidden',
-                        }
-                    ]
-                },
-                {
-                    title: '券种',
-                    children:[
-                        {
-                            title: '合计',
-                            dataIndex: 'ticket',
-                            key: 'ticket',
-                        },
-                        {
-                            title: '已禁用',
-                            dataIndex: 'ticketforbidden',
-                            key: 'ticketforbidden',
-                        }
-                    ]
-                },
-                {
-                    title: '交易次数',
-                    dataIndex: 'totalcheck',
-                    key: 'totalcheck',
-                },
-            ];
-        } else {
-            return [
-                {
-                    title: '日期',
-                    dataIndex: 'yyr',
-                    key: 'yyr',
-                    fixed: 'left',
-                },
-                {
-                    title: '合计',
-                    dataIndex: 'total',
-                    key: 'total',
-                    fixed: 'left',
-                },
-                {
-                    title: '现金',
-                    dataIndex: 'cash',
-                    key: 'cash',
-                    fixed: 'left',
-                },
-                {
-                    title: '赊账',
-                    dataIndex: 'credit',
-                    key: 'credit',
-                    fixed: 'left',
-                },
-                {
-                    title: '转账',
-                    children:[
-                        {
-                            title: '合计',
-                            dataIndex: 'transfer',
-                            key: 'transfer',
-                        },
-                        ...this.props.tableData.zzlist.map((item)=>{
+                        ...tableData.zzlist.map((item)=>{
                             return (
                                 {
                                     title:item,
                                     dataIndex:item,
                                     key:item,
+                                    align:'right',
                                 }
                             )
                         }),
@@ -269,16 +233,42 @@ class ShowTable extends React.Component {
                             title: '已禁用',
                             dataIndex: 'transferforbidden',
                             key: 'transferforbidden',
+                            align:'right',
                         },
                     ]
-                },
-                {
-                    title: '卡种',
+                }
+        };
+
+        const kzColumns = (tableData,showKzDetail) => {
+            let defaultColumns =
+                    {
+                        title: '卡种',
+                        children:[
+                            {
+                                title: '合计',
+                                dataIndex: 'card',
+                                key: 'card',
+                                align:'right',
+                            },
+                        ]
+                    };
+            if ($.isEmptyObject(tableData)) {
+                return defaultColumns;
+            }
+            if ($.isEmptyObject(tableData.kzlist)) {
+                return defaultColumns;
+            }
+            if (!showKzDetail) {
+                return defaultColumns;
+            }
+            return {
+                title: '卡种',
                     children:[
                         {
                             title: '合计',
                             dataIndex: 'card',
                             key: 'card',
+                            align:'right',
                         },
                         ...this.props.tableData.kzlist.map((item)=>{
                             return (
@@ -286,6 +276,7 @@ class ShowTable extends React.Component {
                                     title:item,
                                     dataIndex:item,
                                     key:item,
+                                    align:'right',
                                 }
                             )
                         }),
@@ -293,9 +284,14 @@ class ShowTable extends React.Component {
                             title: '已禁用',
                             dataIndex: 'cardforbidden',
                             key: 'cardforbidden',
+                            align:'right',
                         }
                     ]
-                },
+            }
+        };
+
+        const qzColumns = (tableData,showQzDetail) => {
+            let defaultColumns =
                 {
                     title: '券种',
                     children:[
@@ -303,68 +299,199 @@ class ShowTable extends React.Component {
                             title: '合计',
                             dataIndex: 'ticket',
                             key: 'ticket',
+                            align:'right',
                         },
-                        ...this.props.tableData.qzlist.map((item)=>{
-                            return (
-                                {
-                                    title:item,
-                                    dataIndex:item,
-                                    key:item,
-                                }
-                            )
-                        }),
-                        {
-                            title: '已禁用',
-                            dataIndex: 'ticketforbidden',
-                            key: 'ticketforbidden',
-                        }
                     ]
+                }
+            if ($.isEmptyObject(tableData)) {
+                return defaultColumns;
+            }
+            if ($.isEmptyObject(tableData.qzlist)) {
+                return defaultColumns;
+            }
+            if (!showQzDetail) {
+                return defaultColumns;
+            }
+            return {
+                title: '券种',
+                children:[
+                    {
+                        title: '合计',
+                        dataIndex: 'ticket',
+                        key: 'ticket',
+                        align:'right',
+                    },
+                    ...this.props.tableData.qzlist.map((item)=>{
+                        return (
+                            {
+                                title:item,
+                                dataIndex:item,
+                                key:item,
+                                align:'right',
+                            }
+                        )
+                    }),
+                    {
+                        title: '已禁用',
+                        dataIndex: 'ticketforbidden',
+                        key: 'ticketforbidden',
+                        align:'right',
+                    }
+                ]
+            }
+        };
+
+        const columns = (tableData,showZzDetail,showKzDetail,showQzDetail) => {
+
+            if($.isEmptyObject(tableData)) {
+                return defaultColumns;
+            }
+            return [
+                {
+                    title: '日期',
+                    dataIndex: 'yyr',
+                    key: 'yyr',
+                    fixed: 'left',
+                    align:'center',
                 },
+                {
+                    title: '合计',
+                    dataIndex: 'total',
+                    key: 'total',
+                    fixed: 'left',
+                    align:'right',
+                },
+                {
+                    title: '现金',
+                    dataIndex: 'cash',
+                    key: 'cash',
+                    fixed: 'left',
+                    align:'right',
+                },
+                {
+                    title: '赊账',
+                    dataIndex: 'credit',
+                    key: 'credit',
+                    fixed: 'left',
+                    align:'right',
+                },
+                zzColumns(tableData,showZzDetail),
+                kzColumns(tableData,showKzDetail),
+                qzColumns(tableData,showQzDetail),
                 {
                     title: '交易次数',
                     dataIndex: 'totalcheck',
                     key: 'totalcheck',
+                    align:'right',
                 },
 
             ];
-        }
-    }
+        };
 
-    getDataSource(tableData){
-        if ($.isEmptyObject(tableData)){
-            return [];
-        } else {
-            return tableData.data.map((item)=>{
-                return {
-                    key:item.yyr,
-                    yyr:item.yyr,
-                    total:item.total,
-                    cash:item.cash,
-                    credit:item.credit,
-                    transfer:item.transfer,
-                    transferforbidden:item.transferforbidden,
-                    card:item.card,
-                    cardforbidden:item.cardforbidden,
-                    ticket:item.ticket,
-                    ticketforbidden:item.ticketforbidden,
-                    totalcheck:item.totalcheck,
-                    ...item.transferdetail,
-                    ...item.carddetail,
-                    ...item.ticketdetail,
-                }
-            });
-        }
-    }
+        const defaultColumns = [
+            {
+                title: '日期',
+                dataIndex: 'yyr',
+                key: 'yyr',
+                align:'center',
+            },
+            {
+                title: '合计',
+                dataIndex: 'total',
+                key: 'total',
+                align:'center',
+            },
+            {
+                title: '现金',
+                dataIndex: 'cash',
+                key: 'cash',
+                align:'center',
+            },
+            {
+                title: '赊账',
+                dataIndex: 'credit',
+                key: 'credit',
+                align:'center',
+            },
+            {
+                title: '转账',
+                children:[
+                    {
+                        title: '合计',
+                        dataIndex: 'transfer',
+                        key: 'transfer',
+                        align:'center',
+                    },
+                ]
+            },
+            {
+                title: '卡种',
+                children:[
+                    {
+                        title: '合计',
+                        dataIndex: 'card',
+                        key: 'card',
+                        align:'center',
+                    },
+                ]
+            },
+            {
+                title: '券种',
+                children:[
+                    {
+                        title: '合计',
+                        dataIndex: 'ticket',
+                        key: 'ticket',
+                        align:'center',
+                    },
+                ]
+            },
+            {
+                title: '交易次数',
+                dataIndex: 'totalcheck',
+                key: 'totalcheck',
+                align:'center',
+            },
 
-    render() {
+        ];
+
+        const dataSource = (tableData) => {
+            if ($.isEmptyObject(tableData)){
+                return [];
+            } else {
+                return tableData.data.map((item)=>{
+                    return {
+                        key:item.yyr,
+                        yyr:item.yyr,
+                        total:item.total,
+                        cash:item.cash,
+                        credit:item.credit,
+                        transfer:item.transfer,
+                        transferforbidden:item.transferforbidden,
+                        card:item.card,
+                        cardforbidden:item.cardforbidden,
+                        ticket:item.ticket,
+                        ticketforbidden:item.ticketforbidden,
+                        totalcheck:item.totalcheck,
+                        ...item.transferdetail,
+                        ...item.carddetail,
+                        ...item.ticketdetail,
+                    }
+                });
+            }
+
+        } ;
+
         return (
             <div>
                 <Table
+                    loading={this.props.isSearching}
                     bordered
                     size="middle"
-                    dataSource={this.getDataSource(this.props.tableData)}
-                    columns = {this.getColumns(this.props.tableData)}
+                    dataSource={dataSource(this.props.tableData)}
+                    columns = {columns(this.props.tableData,this.props.showZzDetail,this.props.showKzDetail,this.props.showQzDetail)}
                     scroll={{x:'max-content'}}
+                    pagination={{hideOnSinglePage:true,pageSize:10,showTotal:(total,range)=>{ return `${range[0]}-${range[1]} of ${total}`}}}
                 />
             </div>
         )

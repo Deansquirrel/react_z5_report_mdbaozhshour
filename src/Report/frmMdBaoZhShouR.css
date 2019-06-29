@@ -4,3 +4,9 @@
     height: 48px;
     margin-top: 24px;
 }
+
+.TableShowDetail {
+    height: 48px;
+    float: right;
+    margin-top: -36px;
+}
