@@ -30,6 +30,10 @@ function App(){
     )
 }
 
+function getCurrVersion() {
+    return "0.0.0 Build20190101"
+}
+
 class Container extends React.Component {
     constructor(props){
         super(props);
@@ -138,6 +142,12 @@ class Container extends React.Component {
                             disabled={this.state.isLoggingIn}
                             handleLogin={(username,password)=> this.handleLogin(username,password)}
                         />
+                        <div
+                            className={"VersionInfo"}
+                            style={{color:'white'}}
+                        >
+                            <span>{getCurrVersion()}</span>
+                        </div>
                     </div>
                 );
             case 2:
@@ -157,7 +167,6 @@ class Container extends React.Component {
     }
 }
 
-
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
 
@@ -166,7 +175,8 @@ class PageLoader extends React.Component {
         super(props);
         this.state = {
             collapsed: false,
-            currPage:""
+            currPage:"",
+            wsVersion:""
         }
     }
 
@@ -179,6 +189,24 @@ class PageLoader extends React.Component {
     componentDidMount() {
         this.setState({
             currPage:"mdBaoZhShouR",
+        });
+
+        $.ajax({
+            type:'GET',
+            url:this.props.svrAddress + "/version",
+            // data:JSON.stringify(d),
+            dataType:'json',
+            timeout:30000,
+            contentType:'application/json',
+            cache:false,
+            sync:true,
+            success: function (data) {
+                if(data["errcode"]===200){
+                    this.setState({
+                        wsVersion:data["version"],
+                    });
+                }
+            }.bind(this),
         })
     }
 
@@ -307,6 +335,12 @@ class PageLoader extends React.Component {
                         />
                     </Content>
                 </Layout>
+                <div
+                    className={"VersionInfo"}
+                    style={{display:this.state.collapsed?"none":"block"}}
+                >
+                    <span>{this.state.wsVersion}</span>
+                </div>
             </Layout>
         );
     }
