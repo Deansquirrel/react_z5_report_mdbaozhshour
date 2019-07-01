@@ -25,11 +25,17 @@ class FrmMdBaoZhShouR extends React.Component {
 
         if (sMDate > eMDate) {
             message.warn("开始日期不能大于截止日期",3);
+            this.setState({
+                tableData:[],
+            });
             return
         }
 
-        if (sMDate.add(60,'days') < eMDate ) {
+        if (sMDate.add(60,'day') <= eMDate ) {
             message.warn("查询间隔不能大于60天",3);
+            this.setState({
+                tableData:[],
+            });
             return
         }
 
@@ -58,7 +64,7 @@ class FrmMdBaoZhShouR extends React.Component {
                 });
             }.bind(this),
             success: function (data) {
-                console.log(data)
+                // console.log(data);
                 if(data["errcode"]===200){
                     this.setState({
                         tableData:data,
@@ -68,8 +74,16 @@ class FrmMdBaoZhShouR extends React.Component {
                     setTimeout(()=>{
                         this.props.handleLogout();
                     },100)
+                } else if(data["errmsg"]!=="") {
+                    message.info(data["errmsg"]);
+                    this.setState({
+                        tableData:[],
+                    })
                 } else {
-                    console.log(data)
+                    console.log(data);
+                    this.setState({
+                        tableData:[],
+                    })
                 }
             }.bind(this),
             error:function(xhr,status,e) {

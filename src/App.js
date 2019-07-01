@@ -183,13 +183,13 @@ class PageLoader extends React.Component {
         })
     }
 
-    componentWillUnmount() {
-        // 卸载异步操作设置状态
-        clearTimeout(this.timeouter);
-        this.setState = (state, callback) => {
-            return
-        };
-    }
+    // componentWillUnmount() {
+    //     // 卸载异步操作设置状态
+    //     clearTimeout(this.timeouter);
+    //     this.setState = (state, callback) => {
+    //         return
+    //     };
+    // }
 
 
      handleMenuClick(key) {
