@@ -9,7 +9,6 @@ import 'moment/locale/zh-cn';
 import { LoginForm } from "./Login/frmLogin"
 import { FrmMdBaoZhShouR } from "./Report/frmMdBaoZhShouR"
 
-
 import "antd/dist/antd.css";
 import "./App.css"
 import $ from 'jquery'
@@ -241,9 +240,11 @@ class PageLoader extends React.Component {
 
         let MenuList = ({mData}) => {
             return (
-                <Menu theme="dark"  mode="inline"
-                      defaultSelectedKeys={[this.state.currPage]}
-                      defaultOpenKeys={this.getDefaultOpenKey(testData,this.state.currPage)}
+                <Menu
+                    theme="dark"
+                    mode="inline"
+                    defaultSelectedKeys={[this.state.currPage]}
+                    defaultOpenKeys={this.getDefaultOpenKey(testData,this.state.currPage)}
                 >
                     {mData.map((item)=>{
                         if (item.child.length > 0){
