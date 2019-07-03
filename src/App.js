@@ -15,7 +15,7 @@ import $ from 'jquery'
 
 // const preVersionInfo = "1.0.0 Build20190703";
 // const testVersionInfo = "0.0.0 Build20190101";
-const versionInfo = "0.0.0 Build20190101";
+const versionInfo = "1.0.1 Build20190703";
 
 moment.locale('zh-cn');
 message.config({

@@ -64,7 +64,7 @@ class FrmMdBaoZhShouR extends React.Component {
                 });
             }.bind(this),
             success: function (data) {
-                // console.log(data);
+                console.log(data);
                 if(data["errcode"]===200){
                     this.setState({
                         tableData:data,
@@ -232,41 +232,41 @@ class ShowTable extends React.Component {
             }
             return {
                 title: '转账',
-                    children:[
-                        {
-                            title: '合计',
-                            dataIndex: 'transfer',
-                            key: 'transfer',
-                            align:'right',
-                        },
-                        ...tableData.zzlist.map((item)=>{
-                            return (
-                                {
-                                    title:item,
-                                    dataIndex:item,
-                                    key:item,
-                                    align:'right',
-                                }
-                            )
-                        }),
-                        {
-                            title: '已禁用',
-                            dataIndex: 'transferforbidden',
-                            key: 'transferforbidden',
-                            align:'right',
-                        },
-                    ]
-                }
+                children:[
+                    {
+                        title: '合计',
+                        dataIndex: 'transfer',
+                        key: 'transfer',
+                        align:'right',
+                    },
+                    ...tableData.zzlist.map((item)=>{
+                        return (
+                            {
+                                title:item,
+                                dataIndex:'transfer' + item,
+                                key:'transfer' + item,
+                                align:'right',
+                            }
+                        )
+                    }),
+                    {
+                        title: '已禁用',
+                        dataIndex: 'transferforbidden',
+                        key: 'transferforbidden',
+                        align:'right',
+                    },
+                ]
+            }
         };
 
         const kzColumns = (tableData,showKzDetail) => {
             let defaultColumns =
-                    {
-                        title: '卡种',
-                        dataIndex: 'card',
-                        key: 'card',
-                        align:'right',
-                    };
+                {
+                    title: '卡种',
+                    dataIndex: 'card',
+                    key: 'card',
+                    align:'right',
+                };
             if ($.isEmptyObject(tableData)) {
                 return defaultColumns;
             }
@@ -278,30 +278,30 @@ class ShowTable extends React.Component {
             }
             return {
                 title: '卡种',
-                    children:[
-                        {
-                            title: '合计',
-                            dataIndex: 'card',
-                            key: 'card',
-                            align:'right',
-                        },
-                        ...this.props.tableData.kzlist.map((item)=>{
-                            return (
-                                {
-                                    title:item,
-                                    dataIndex:item,
-                                    key:item,
-                                    align:'right',
-                                }
-                            )
-                        }),
-                        {
-                            title: '已禁用',
-                            dataIndex: 'cardforbidden',
-                            key: 'cardforbidden',
-                            align:'right',
-                        }
-                    ]
+                children:[
+                    {
+                        title: '合计',
+                        dataIndex: 'card',
+                        key: 'card',
+                        align:'right',
+                    },
+                    ...this.props.tableData.kzlist.map((item)=>{
+                        return (
+                            {
+                                title:item,
+                                dataIndex:'card' + item,
+                                key:'card' + item,
+                                align:'right',
+                            }
+                        )
+                    }),
+                    {
+                        title: '已禁用',
+                        dataIndex: 'cardforbidden',
+                        key: 'cardforbidden',
+                        align:'right',
+                    }
+                ]
             }
         };
 
@@ -335,8 +335,8 @@ class ShowTable extends React.Component {
                         return (
                             {
                                 title:item,
-                                dataIndex:item,
-                                key:item,
+                                dataIndex:'ticket' + item,
+                                key:'ticket' + item,
                                 align:'right',
                             }
                         )
