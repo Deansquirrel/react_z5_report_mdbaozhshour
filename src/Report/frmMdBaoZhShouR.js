@@ -65,7 +65,7 @@ class FrmMdBaoZhShouR extends React.Component {
                 });
             }.bind(this),
             success: function (data) {
-                console.log(data);
+                // console.log(data);
                 if(data["errcode"]===200){
                     this.setState({
                         tableData:data,
