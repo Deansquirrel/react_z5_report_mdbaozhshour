@@ -118,11 +118,11 @@ class FrmMdBaoZhShouR extends React.Component {
                     isSearching={this.state.isSearching}
                     handleSubmit={(sDate,eDate)=>this.handleFrmSubmit(sDate,eDate)}
                 />
-                <div className={"TableShowDetail"}>
-                    <Checkbox onChange={this.handleCheckBoxZzDetail} defaultChecked={true}>显示转帐明细</Checkbox>
-                    <Checkbox onChange={this.handleCheckBoxKzDetail} defaultChecked={true}>显示卡种明细</Checkbox>
-                    <Checkbox onChange={this.handleCheckBoxQzDetail} defaultChecked={true}>显示券种明细</Checkbox>
-                </div>
+                {/*<div className={"TableShowDetail"}>*/}
+                {/*    <Checkbox onChange={this.handleCheckBoxZzDetail} defaultChecked={true}>显示转帐明细</Checkbox>*/}
+                {/*    <Checkbox onChange={this.handleCheckBoxKzDetail} defaultChecked={true}>显示卡种明细</Checkbox>*/}
+                {/*    <Checkbox onChange={this.handleCheckBoxQzDetail} defaultChecked={true}>显示券种明细</Checkbox>*/}
+                {/*</div>*/}
                 <ShowTable
                     showZzDetail={this.state.showZzDetail}
                     showKzDetail={this.state.showKzDetail}
@@ -249,12 +249,12 @@ class ShowTable extends React.Component {
                             }
                         )
                     }),
-                    {
-                        title: '已禁用',
-                        dataIndex: 'transferforbidden',
-                        key: 'transferforbidden',
-                        align:'right',
-                    },
+                    // {
+                    //     title: '已禁用',
+                    //     dataIndex: 'transferforbidden',
+                    //     key: 'transferforbidden',
+                    //     align:'right',
+                    // },
                 ]
             }
         };
@@ -295,12 +295,12 @@ class ShowTable extends React.Component {
                             }
                         )
                     }),
-                    {
-                        title: '已禁用',
-                        dataIndex: 'cardforbidden',
-                        key: 'cardforbidden',
-                        align:'right',
-                    }
+                    // {
+                    //     title: '已禁用',
+                    //     dataIndex: 'cardforbidden',
+                    //     key: 'cardforbidden',
+                    //     align:'right',
+                    // }
                 ]
             }
         };
@@ -341,12 +341,12 @@ class ShowTable extends React.Component {
                             }
                         )
                     }),
-                    {
-                        title: '已禁用',
-                        dataIndex: 'ticketforbidden',
-                        key: 'ticketforbidden',
-                        align:'right',
-                    }
+                    // {
+                    //     title: '已禁用',
+                    //     dataIndex: 'ticketforbidden',
+                    //     key: 'ticketforbidden',
+                    //     align:'right',
+                    // }
                 ]
             }
         };
