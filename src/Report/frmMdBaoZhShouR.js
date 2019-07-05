@@ -1,5 +1,6 @@
 import React from "react";
-import {Form, DatePicker, Button, Table, Checkbox, message} from 'antd';
+import {Form, DatePicker, Button, Table, message} from 'antd';
+// import {Checkbox} from 'antd';
 import "antd/dist/antd.css";
 import "./frmMdBaoZhShouR.css";
 import moment from "moment";
@@ -92,23 +93,23 @@ class FrmMdBaoZhShouR extends React.Component {
         })
     }
 
-    handleCheckBoxZzDetail = e => {
-        this.setState({
-            showZzDetail:e.target.checked,
-        })
-    };
-
-    handleCheckBoxKzDetail = e => {
-        this.setState({
-            showKzDetail:e.target.checked,
-        })
-    };
-
-    handleCheckBoxQzDetail = e => {
-        this.setState({
-            showQzDetail:e.target.checked,
-        })
-    };
+    // handleCheckBoxZzDetail = e => {
+    //     this.setState({
+    //         showZzDetail:e.target.checked,
+    //     })
+    // };
+    //
+    // handleCheckBoxKzDetail = e => {
+    //     this.setState({
+    //         showKzDetail:e.target.checked,
+    //     })
+    // };
+    //
+    // handleCheckBoxQzDetail = e => {
+    //     this.setState({
+    //         showQzDetail:e.target.checked,
+    //     })
+    // };
 
     render() {
         return (
@@ -248,7 +249,7 @@ class ShowTable extends React.Component {
                                 align:'right',
                             }
                         )
-                    }),
+                    })
                     // {
                     //     title: '已禁用',
                     //     dataIndex: 'transferforbidden',
@@ -294,7 +295,7 @@ class ShowTable extends React.Component {
                                 align:'right',
                             }
                         )
-                    }),
+                    })
                     // {
                     //     title: '已禁用',
                     //     dataIndex: 'cardforbidden',
@@ -340,7 +341,7 @@ class ShowTable extends React.Component {
                                 align:'right',
                             }
                         )
-                    }),
+                    })
                     // {
                     //     title: '已禁用',
                     //     dataIndex: 'ticketforbidden',
@@ -361,28 +362,28 @@ class ShowTable extends React.Component {
                     title: '日期',
                     dataIndex: 'yyr',
                     key: 'yyr',
-                    fixed: 'left',
+                    // fixed: 'left',
                     align:'center',
                 },
                 {
                     title: '合计',
                     dataIndex: 'total',
                     key: 'total',
-                    fixed: 'left',
+                    // fixed: 'left',
                     align:'right',
                 },
                 {
                     title: '现金',
                     dataIndex: 'cash',
                     key: 'cash',
-                    fixed: 'left',
+                    // fixed: 'left',
                     align:'right',
                 },
                 {
                     title: '赊账',
                     dataIndex: 'credit',
                     key: 'credit',
-                    fixed: 'left',
+                    // fixed: 'left',
                     align:'right',
                 },
                 zzColumns(tableData,showZzDetail),
